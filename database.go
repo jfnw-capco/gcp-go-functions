@@ -97,22 +97,28 @@ func openDB() (*sql.DB, error) {
 }
 
 // RunSQL is used to add an entity to the database
-func RunSQL(sql string, args ...interface{}) (*sql.Row, error) {
+func RunSQL(sql string, args ...interface{}) (*sql.Rows, error) {
 
 	db, err := openDB()
 	if err != nil {
+		logger.Fatal("DB OPEN ERROR: ",err)
 		return nil, err
 	}
 
-	row := db.QueryRow(sql, args...)
+	rows, err := db.Query(sql, args...)
+	if err != nil {
+		logger.Fatal("DB QUERY ERROR: ", err)
+	}
+
 	defer db.Close()
 
-	return row, err
+	return rows, err
 }
 
 func lookupDBError(err error) (int, string) {
 
 	pqErr := err.(*pq.Error)
+	logger.Fatal("DB ERROR: ", err)
 
 	switch pqErr.Code {
 	case "23505":
