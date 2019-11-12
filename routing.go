@@ -68,7 +68,7 @@ func AddRoute(verb string, path string, handler Handler) {
 func Serve(w http.ResponseWriter, r *http.Request) {
 
 	logger.Debug(LogEntry{Action: "In Serve", Message: "HIT 1"})
-	//http.DefaultServeMux = new(http.ServeMux)
+	http.DefaultServeMux = new(http.ServeMux)
 	logger.Debug(LogEntry{Action: "new mux", Message: "HIT 2"})
 
 	router := mux.NewRouter()
@@ -82,7 +82,7 @@ func Serve(w http.ResponseWriter, r *http.Request) {
 		logger.Debug(LogEntry{Action: "new handlefunc", Message: "HIT 5"})
 		logger.Info(LogEntry{Action: "Initialized Route", Map: route.LogData()})
 	}
-	http.Handle("/", router)
+	http.Handle("/THandler", router)
 	logger.Debug(LogEntry{Action: "new handle", Message: "HIT 6"})
 
 	router.ServeHTTP(w, r)
