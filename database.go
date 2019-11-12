@@ -74,6 +74,7 @@ func openDB() (*sql.DB, string, error) {
 		connectionString = config.ConnectionString
 
 	}
+	logger.Info(LogEntry{Action: "Connection String: ", Message: connectionString})
 
 	db, err := sql.Open(config.Type, connectionString)
 	return db, connectionString, err
