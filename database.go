@@ -98,11 +98,11 @@ func RunSQL(sql string, args ...interface{}) (*sql.Row, error) {
 	row := db.QueryRow(sql, args...)
 	logger.Info(LogEntry{Action: "SQL Run", Message: sql})
 
-	errClose := db.Close()
-	if errClose != nil {
-		logger.Error("DB CLOSE ERROR", err)
-	}
-	logger.Info(LogEntry{Action: "DB CLOSED", Message: sql})
+	// errClose := db.Close()
+	// if errClose != nil {
+	// 	logger.Error("DB CLOSE ERROR", err)
+	// }
+	// logger.Info(LogEntry{Action: "DB CLOSED", Message: sql})
 
 	return row, err
 }
