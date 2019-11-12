@@ -72,9 +72,8 @@ func openDB() (*sql.DB, string, error) {
 		connectionString = fmt.Sprintf(config.ConnectionString, config.getPassword())
 	} else {
 		connectionString = config.ConnectionString
-
 	}
-	logger.Debug(LogEntry{Action: "HTTP Code", Message: connectionString})
+	logger.Debug(LogEntry{Action: "Connection string loaded: ", Message: connectionString})
 
 	db, err := sql.Open(config.Type, connectionString)
 	return db, connectionString, err
