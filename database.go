@@ -1,4 +1,4 @@
-package gcpfunctions
+package nozzle
 
 import (
 	"database/sql"
@@ -7,6 +7,8 @@ import (
 
 	"github.com/caarlos0/env"
 	"github.com/google/uuid"
+
+	// Used internally bu database/sql
 	"github.com/lib/pq"
 )
 
@@ -19,25 +21,20 @@ const (
 )
 
 const (
-	driver   = "postgres"
-	host     = "host"
-	port     = "port"
-	user     = "user"
-	password = "password"
-	dbName   = "dbname"
-	sslMode  = "sslmode"
-	mask     = "*"
+	local  = "local"
+	cloud  = "cloud"
+	driver = "postgres"
 )
 
 type databaseInfo struct {
-	IsCloudSQL bool   `env:"DB_IS_CLOUD_SQL"`
-	Type       string `env:"DB_TYPE"`
-	Host       string `env:"DB_HOST"`
-	Instance   string `env:"DB_INSTANCE"`
-	Name       string `env:"DB_NAME"`
-	Port       string `env:"DB_PORT"`
-	User       string `env:"DB_USER"`
-	SSLMode    string `env:"DB_SSLMODE"`
+	Mode             string `env:"DB_MODE"`
+	Type             string `env:"DB_TYPE"`
+	ConnectionString string `env:"DB_CONNECTIONSTRING"`
+}
+
+func (info *databaseInfo) getPassword() string {
+
+	return os.Getenv("DB_PASSWORD")
 }
 
 var config = loadConfig()
@@ -48,15 +45,11 @@ func loadConfig() databaseInfo {
 
 	err := env.Parse(&config)
 	if err != nil {
+		logger.Error("Loading Config", err)
 		panic(err)
 	}
 
 	return config
-}
-
-func (info *databaseInfo) getPassword() string {
-
-	return os.Getenv("DB_PASSWORD")
 }
 
 // CreateID returns a UUID
@@ -64,61 +57,55 @@ func CreateID() uuid.UUID {
 
 	id, err := uuid.NewRandom()
 	if err != nil {
+		logger.Error("Creating ID", err)
 		panic(err)
 	}
 
 	return id
 }
 
-func openDB() (*sql.DB, error) {
+func openDB() (*sql.DB, string, error) {
 
 	var connectionString string
 
-	if config.IsCloudSQL {
-		connectionString = fmt.Sprintf("host=/cloudsql/%s user=%s password=%s dbname=%s sslmode=%s",
-			config.Instance,
-			config.User,
-			config.getPassword(),
-			config.Name,
-			config.SSLMode)
+	if config.Mode == local {
+		connectionString = fmt.Sprintf(config.ConnectionString, config.getPassword())
 	} else {
-		connectionString = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-			config.Host,
-			config.Port,
-			config.User,
-			config.getPassword(),
-			config.Name,
-			config.SSLMode)
+		connectionString = config.ConnectionString
+
 	}
 
-	logger.DebugMessage("DB ConnectionString", connectionString)
-
-	return sql.Open(config.Type, connectionString)
+	db, err := sql.Open(config.Type, connectionString)
+	return db, connectionString, err
 }
 
 // RunSQL is used to add an entity to the database
-func RunSQL(sql string, args ...interface{}) (*sql.Rows, error) {
+func RunSQL(sql string, args ...interface{}) (*sql.Row, error) {
 
-	db, err := openDB()
+	db, connectionString, err := openDB()
 	if err != nil {
-		logger.Fatal("DB OPEN ERROR: ",err)
+		logger.Error("DB Open Failed", err)
 		return nil, err
 	}
 
-	rows, err := db.Query(sql, args...)
+	err = db.Ping()
 	if err != nil {
-		logger.Fatal("DB QUERY ERROR: ", err)
+		logger.Error("DB Ping Failed", err)
+		return nil, err
 	}
+	logger.Info(LogEntry{Action: "DB Ping Succeeded", Message: connectionString})
+
+	row := db.QueryRow(sql, args...)
+	logger.Info(LogEntry{Action: "SQL Run", Message: sql})
 
 	defer db.Close()
 
-	return rows, err
+	return row, err
 }
 
 func lookupDBError(err error) (int, string) {
 
 	pqErr := err.(*pq.Error)
-	logger.Fatal("DB ERROR: ", err)
 
 	switch pqErr.Code {
 	case "23505":

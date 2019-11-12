@@ -1,8 +1,9 @@
-package gcpfunctions
+package nozzle
 
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/lib/pq"
 )
@@ -25,12 +26,19 @@ type Error struct {
 	Message string `json:"id"`
 }
 
+// ErrorBody represents a structured error
+type ErrorBody struct {
+	Code        int    `json:"code"`
+	Description string `json:"description"`
+}
+
 // Handle processes a HTTP request
 func Handle(w http.ResponseWriter, object Entity, sql string, params ...interface{}) {
 
 	response := Response{}
 
 	err := ReturnOne(object, sql, params...)
+
 	if err != nil {
 		status, message := lookupError(err)
 		response = newResponse(status, Error{Message: message})
@@ -42,10 +50,17 @@ func Handle(w http.ResponseWriter, object Entity, sql string, params ...interfac
 	writeResponse(w, response)
 }
 
-// HandleBadRequest handles a bad request from the client
-func HandleBadRequest(w http.ResponseWriter) {
+// HandleBadRequestErr handles a bad request from the client
+func HandleBadRequestErr(w http.ResponseWriter, err error) {
 
-	writeResponse(w, newResponse(http.StatusBadRequest, nil))
+	logger.Error("Bad Request", err)
+
+	body := ErrorBody{
+		Code:        http.StatusBadRequest,
+		Description: "Bad Request",
+	}
+
+	writeResponse(w, newResponse(http.StatusBadRequest, body))
 }
 
 // NewResponse creates an initialized Response
@@ -70,7 +85,7 @@ func Serialize(data interface{}) ([]byte, error) {
 
 	json, err := json.Marshal(data)
 	if err != nil {
-		logger.Fatal("Serialize Body", err)
+		logger.Error("Serializing Body", err)
 	}
 
 	return json, err
@@ -81,9 +96,10 @@ func Deserialize(request Request, object interface{}) error {
 
 	err := json.Unmarshal(request.Body, &object)
 	if err != nil {
-		logger.Fatal("Deserialize Body", err)
+		logger.Error("Deserializing Body", err)
 	}
 
+	logger.Info(LogEntry{Action: "Deserialized Body", Message: string(request.Body)})
 	return err
 }
 
@@ -92,20 +108,28 @@ func writeResponse(w http.ResponseWriter, response Response) {
 	for key, value := range response.Headers {
 		w.Header().Set(key, value)
 	}
-
 	w.WriteHeader(response.Code)
+
+	logger.Debug(LogEntry{Action: "HTTP Headers", Map: response.Headers})
+	logger.Debug(LogEntry{Action: "HTTP Code", Message: strconv.Itoa(response.Code)})
 
 	if response.Data != nil {
 
 		json, err := Serialize(response.Data)
 		if err != nil {
+			logger.Error("Serializing Body", err)
 			WriteErrorToResponse(w, http.StatusInternalServerError)
 		}
 
+		logger.Debug(LogEntry{Action: "HTTP Body", Message: string(json)})
+
 		_, err = w.Write(json)
 		if err != nil {
+			logger.Error("Writing Body", err)
 			WriteErrorToResponse(w, http.StatusInternalServerError)
 		}
+
+		logger.Debug(LogEntry{Action: "HTTP Body", Message: string(json)})
 	}
 }
 

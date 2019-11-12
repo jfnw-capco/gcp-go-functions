@@ -1,4 +1,4 @@
-package gcpfunctions
+package nozzle
 
 import (
 	"bytes"
@@ -40,7 +40,7 @@ func AddRoute(verb string, path string, handler Handler) {
 	}
 
 	routes = append(routes, route)
-	logger.InfoData("Added Route", route.LogData())
+	logger.Info(LogEntry{Action: "Added Route", Map: route.LogData()})
 }
 
 // Serve handle a request and using the router redirects the traffic
@@ -51,7 +51,7 @@ func Serve(w http.ResponseWriter, r *http.Request) {
 
 	for _, route := range routes {
 		router.HandleFunc(route.path, route.handler).Methods(route.verb)
-		logger.InfoData("Initialized Route", route.LogData())
+		logger.Info(LogEntry{Action: "Initialized Route", Map: route.LogData()})
 	}
 	http.Handle("/", router)
 
@@ -63,6 +63,7 @@ func GetRequest(r *http.Request) (Request, error) {
 
 	body, err := readBytes(r.Body)
 	if err != nil {
+		logger.Error("Reading Request", err)
 		return Request{}, err
 	}
 
@@ -77,6 +78,7 @@ func readBytes(reader io.Reader) ([]byte, error) {
 	buffer := new(bytes.Buffer)
 	_, err := buffer.ReadFrom(reader)
 	if err != nil {
+		logger.Error("Reading Request", err)
 		return nil, err
 	}
 
