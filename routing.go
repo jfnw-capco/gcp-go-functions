@@ -45,12 +45,13 @@ func AddRoute(verb string, path string, handler Handler) {
 
 // Serve handle a request and using the router redirects the traffic
 func Serve(w http.ResponseWriter, r *http.Request) {
+
 	logger.Debug(LogEntry{Action: "Version 1", Message: "HIT 0"})
 
 	logger.Debug(LogEntry{Action: "In Serve", Message: "HIT 1"})
 	// http.DefaultServeMux = new(http.ServeMux)
 	logger.Debug(LogEntry{Action: "new mux", Message: "HIT 2"})
-	router := mux.NewRouter()
+	// router := mux.NewRouter()
 	logger.Debug(LogEntry{Action: "new router", Message: "HIT 3"})
 
 	for _, route := range routes {
