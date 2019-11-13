@@ -50,7 +50,7 @@ func Serve(w http.ResponseWriter, r *http.Request) {
 
 	logger.Debug(LogEntry{Action: "In Serve", Message: "HIT 1"})
 
-	//http.DefaultServeMux = new(http.ServeMux)
+	http.DefaultServeMux = new(http.ServeMux)
 	logger.Debug(LogEntry{Action: "new mux", Message: "HIT 2"})
 
 	router := mux.NewRouter()
