@@ -1,4 +1,4 @@
-# Capco Global Challenge
+# Capco Google Cloud Platform Functions
  
 ![Capco](https://github.com/capcodigital/.github/blob/master/assets/capco_logo.jpg)
 
