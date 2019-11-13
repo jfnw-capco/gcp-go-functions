@@ -70,7 +70,7 @@ func AddRoute(verb string, path string, handler Handler) {
 // 	logger.Debug(LogEntry{Action: "new serveHTTP", Message: "HIT 7"})
 // }
 
-func initRoutes(router *mux.Router) {
+func InitRoutes(router *mux.Router) {
 
 	for _, route := range routes {
 		router.HandleFunc(route.path, route.handler).Methods(route.verb)
