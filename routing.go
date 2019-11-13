@@ -8,7 +8,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var router = mux.NewRouter()
+//var router = mux.NewRouter()
 var routes = []Route{}
 
 // Handler is a delegate to concrete handler
