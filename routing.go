@@ -49,8 +49,10 @@ func Serve(w http.ResponseWriter, r *http.Request) {
 	logger.Debug(LogEntry{Action: "Version 2", Message: "HIT 0"})
 
 	logger.Debug(LogEntry{Action: "In Serve", Message: "HIT 1"})
+
 	http.DefaultServeMux = new(http.ServeMux)
 	logger.Debug(LogEntry{Action: "new mux", Message: "HIT 2"})
+
 	router := mux.NewRouter()
 	logger.Debug(LogEntry{Action: "new router", Message: "HIT 3"})
 
@@ -60,7 +62,8 @@ func Serve(w http.ResponseWriter, r *http.Request) {
 		logger.Debug(LogEntry{Action: "new handlefunc", Message: "HIT 5"})
 		logger.Info(LogEntry{Action: "Initialized Route", Map: route.LogData()})
 	}
-	http.Handle("/", router)
+	//http.Handle("/", router)
+	http.DefaultServeMux.Handle("/", router)
 	logger.Debug(LogEntry{Action: "new handle", Message: "HIT 6"})
 
 	router.ServeHTTP(w, r)
