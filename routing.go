@@ -8,7 +8,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// var router = mux.NewRouter()
 var routes = []Route{}
 
 // Handler is a delegate to concrete handler
@@ -46,14 +45,12 @@ func AddRoute(verb string, path string, handler Handler) {
 // Serve handle a request and using the router redirects the traffic
 func Serve(w http.ResponseWriter, r *http.Request) {
 
-	http.DefaultServeMux = new(http.ServeMux)
 	router := mux.NewRouter()
 
 	for _, route := range routes {
 		router.HandleFunc(route.path, route.handler).Methods(route.verb)
 		logger.Info(LogEntry{Action: "Initialized Route", Map: route.LogData()})
 	}
-	http.Handle("/", router)
 
 	router.ServeHTTP(w, r)
 }

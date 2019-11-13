@@ -40,6 +40,7 @@ func Handle(w http.ResponseWriter, object Entity, sql string, params ...interfac
 	err := ReturnOne(object, sql, params...)
 
 	if err != nil {
+		logger.Error("SQL Query error: ", err)
 		status, message := lookupError(err)
 		response = newResponse(status, Error{Message: message})
 
