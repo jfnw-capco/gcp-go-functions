@@ -95,7 +95,7 @@ func RunSQL(sql string, args ...interface{}) (*sql.Row, error) {
 	}
 	logger.Info(LogEntry{Action: "DB Ping Succeeded", Message: connectionString})
 
-	row := db.Query(sql, args...)
+	row := db.QueryRow(sql, args...)
 	logger.Info(LogEntry{Action: "SQL Run", Message: sql})
 
 	defer db.Close()
