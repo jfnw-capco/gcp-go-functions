@@ -6,23 +6,23 @@ import (
 
 // Entity is a class that represent an entry in the DB
 type Entity interface {
-	Map(row *sql.Row) error
+	Map(rows *sql.Rows) error
 }
 
 // Map maps the DB to an entity
-func Map(entity Entity, row *sql.Row) error {
+func Map(entity Entity, rows *sql.Rows) error {
 
-	return entity.Map(row)
+	return entity.Map(rows)
 }
 
 // ReturnOne returns one (and only one) entity from the DB
 func ReturnOne(entity Entity, sql string, args ...interface{}) error {
 
-	row, err := RunSQL(sql, args...)
+	rows, err := RunSQL(sql, args...)
 	if err != nil {
 		logger.Error("SQL Execution", err)
 		return err
 	}
 
-	return Map(entity, row)
+	return Map(entity, rows)
 }

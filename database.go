@@ -80,7 +80,7 @@ func openDB() (*sql.DB, string, error) {
 }
 
 // RunSQL is used to add an entity to the database
-func RunSQL(sql string, args ...interface{}) (*sql.Row, error) {
+func RunSQL(sql string, args ...interface{}) (*sql.Rows, error) {
 
 	db, connectionString, err := openDB()
 	if err != nil {
@@ -95,12 +95,15 @@ func RunSQL(sql string, args ...interface{}) (*sql.Row, error) {
 	}
 	logger.Info(LogEntry{Action: "DB Ping Succeeded", Message: connectionString})
 
-	row := db.QueryRow(sql, args...)
+	row, queryErr := db.Query(sql, args...)
+	if queryErr != nil {
+		logger.Error("DB Query Failed", err)
+	}
 	logger.Info(LogEntry{Action: "SQL Run", Message: sql})
 
 	defer db.Close()
 
-	return row, err
+	return row, queryErr
 }
 
 func lookupDBError(err error) (int, string) {
