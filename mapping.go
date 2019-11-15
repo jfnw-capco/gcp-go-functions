@@ -10,7 +10,7 @@ type Entity interface {
 }
 
 // Map maps the DB to an entity
-func Map(entity Entity, rows *sql.Row) error {
+func Map(entity Entity, row *sql.Row) error {
 
 	return entity.Map(row)
 }

@@ -100,7 +100,7 @@ func RunSQL(sql string, args ...interface{}) (*sql.Row, error) {
 
 	defer db.Close()
 
-	return row, queryErr
+	return row, err
 }
 
 func lookupDBError(err error) (int, string) {
