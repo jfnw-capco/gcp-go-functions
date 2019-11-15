@@ -141,15 +141,16 @@ func WriteErrorToResponse(w http.ResponseWriter, code int) {
 }
 
 func lookupError(err error) (int, string) {
-
 	if err != nil {
 		switch err.(type) {
 		case *pq.Error:
+			logger.Error("Mapping Error To Db Error", err)
 			return lookupDBError(err)
 		default:
+			logger.Error("Mapping Error To Internal Error", err)
 			return InternalError, "Internal Error"
 		}
 	}
-
+	logger.Error("Failed To Map Error", err)
 	return InternalError, "Internal Error"
 }

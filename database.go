@@ -109,8 +109,10 @@ func lookupDBError(err error) (int, string) {
 
 	switch pqErr.Code {
 	case "23505":
+		logger.Error("Mapping Error To Duplicate Error", err)
 		return DuplicateError, "Duplicate"
 	default:
+		logger.Error("Mapping Error To Internal Error", err)
 		return InternalError, "Internal Error"
 	}
 }
