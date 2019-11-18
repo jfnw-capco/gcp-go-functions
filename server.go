@@ -41,10 +41,10 @@ func Handle(w http.ResponseWriter, object Entity, sql string, params ...interfac
 
 	if err != nil {
 		status, message := lookupError(err)
-		response = newResponse(status, Error{Message: message})
+		response = NewResponse(status, Error{Message: message})
 
 	} else {
-		response = newResponse(http.StatusOK, object)
+		response = NewResponse(http.StatusOK, object)
 	}
 
 	WriteResponse(w, response)
@@ -60,7 +60,7 @@ func HandleBadRequestErr(w http.ResponseWriter, err error) {
 		Description: "Bad Request",
 	}
 
-	WriteResponse(w, newResponse(http.StatusBadRequest, body))
+	WriteResponse(w, NewResponse(http.StatusBadRequest, body))
 }
 
 // NewResponse creates an initialized Response
@@ -137,7 +137,7 @@ func WriteResponse(w http.ResponseWriter, response Response) {
 // WriteErrorToResponse writes in a consistent way
 func WriteErrorToResponse(w http.ResponseWriter, code int) {
 
-	errorResponse := newResponse(code, nil)
+	errorResponse := NewResponse(code, nil)
 	WriteResponse(w, errorResponse)
 }
 
