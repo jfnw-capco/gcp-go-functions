@@ -64,7 +64,7 @@ func HandleBadRequestErr(w http.ResponseWriter, err error) {
 }
 
 // NewResponse creates an initialized Response
-func newResponse(code int, data interface{}) Response {
+func NewResponse(code int, data interface{}) Response {
 
 	headers := map[string]string{
 		"Access-Control-Allow-Origin":  "*",
