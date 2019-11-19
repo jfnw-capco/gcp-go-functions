@@ -41,13 +41,13 @@ func Handle(w http.ResponseWriter, object Entity, sql string, params ...interfac
 
 	if err != nil {
 		status, message := lookupError(err)
-		response = newResponse(status, Error{Message: message})
+		response = NewResponse(status, Error{Message: message})
 
 	} else {
-		response = newResponse(http.StatusOK, object)
+		response = NewResponse(http.StatusOK, object)
 	}
 
-	writeResponse(w, response)
+	WriteResponse(w, response)
 }
 
 // HandleBadRequestErr handles a bad request from the client
@@ -60,11 +60,11 @@ func HandleBadRequestErr(w http.ResponseWriter, err error) {
 		Description: "Bad Request",
 	}
 
-	writeResponse(w, newResponse(http.StatusBadRequest, body))
+	WriteResponse(w, NewResponse(http.StatusBadRequest, body))
 }
 
 // NewResponse creates an initialized Response
-func newResponse(code int, data interface{}) Response {
+func NewResponse(code int, data interface{}) Response {
 
 	headers := map[string]string{
 		"Access-Control-Allow-Origin":  "*",
@@ -103,7 +103,8 @@ func Deserialize(request Request, object interface{}) error {
 	return err
 }
 
-func writeResponse(w http.ResponseWriter, response Response) {
+// WriteResponse writes a response in a consistent way
+func WriteResponse(w http.ResponseWriter, response Response) {
 
 	for key, value := range response.Headers {
 		w.Header().Set(key, value)
@@ -136,8 +137,8 @@ func writeResponse(w http.ResponseWriter, response Response) {
 // WriteErrorToResponse writes in a consistent way
 func WriteErrorToResponse(w http.ResponseWriter, code int) {
 
-	errorResponse := newResponse(code, nil)
-	writeResponse(w, errorResponse)
+	errorResponse := NewResponse(code, nil)
+	WriteResponse(w, errorResponse)
 }
 
 func lookupError(err error) (int, string) {
