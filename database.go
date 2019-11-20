@@ -32,16 +32,16 @@ type DatabaseInfo struct {
 	ConnectionString string `env:"DB_CONNECTIONSTRING"`
 }
 
-func (info *databaseInfo) getPassword() string {
+func (info *DatabaseInfo) getPassword() string {
 
 	return os.Getenv("DB_PASSWORD")
 }
 
 var config = loadConfig()
 
-func loadConfig() databaseInfo {
+func loadConfig() DatabaseInfo {
 
-	config := databaseInfo{}
+	config := DatabaseInfo{}
 
 	err := env.Parse(&config)
 	if err != nil {
