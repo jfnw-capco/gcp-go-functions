@@ -26,7 +26,7 @@ const (
 	driver = "postgres"
 )
 
-type databaseInfo struct {
+type DatabaseInfo struct {
 	Mode             string `env:"DB_MODE"`
 	Type             string `env:"DB_TYPE"`
 	ConnectionString string `env:"DB_CONNECTIONSTRING"`
