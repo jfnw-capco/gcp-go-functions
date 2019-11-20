@@ -30,3 +30,10 @@ func ExecuteTestRequest(t *testing.T, verb string, path string, body string, fun
 
 	return request, recorder
 }
+
+func SetTestConifg(cs string, dm string, dt string) {
+
+	config.ConnectionString = cs
+	config.Mode = dm
+	config.Type = dt
+}

@@ -26,22 +26,22 @@ const (
 	driver = "postgres"
 )
 
-type DatabaseInfo struct {
+type databaseInfo struct {
 	Mode             string `env:"DB_MODE"`
 	Type             string `env:"DB_TYPE"`
 	ConnectionString string `env:"DB_CONNECTIONSTRING"`
 }
 
-func (info *DatabaseInfo) getPassword() string {
+func (info *databaseInfo) getPassword() string {
 
 	return os.Getenv("DB_PASSWORD")
 }
 
 var config = loadConfig()
 
-func loadConfig() DatabaseInfo {
+func loadConfig() databaseInfo {
 
-	config := DatabaseInfo{}
+	config := databaseInfo{}
 
 	err := env.Parse(&config)
 	if err != nil {
