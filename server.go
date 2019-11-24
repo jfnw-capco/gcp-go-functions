@@ -32,6 +32,22 @@ type ErrorBody struct {
 	Description string `json:"description"`
 }
 
+// Ping is provided by default to test the service is up
+// and connectivity in place
+func Ping(w http.ResponseWriter, r *http.Request) {
+
+	logger.Debug(LogEntry{Action: "Ping Started"})
+
+	_, err := pingDB()
+	if err != nil {
+		logger.Error("Service Ping Failed", err)
+		handleErr(w, "Service Unavailable", http.StatusBadRequest, err)
+	} else {
+		logger.Debug(LogEntry{Action: "Ping Successful"})
+		WriteResponse(w, NewResponse(http.StatusOK, nil))
+	}
+}
+
 // Handle processes a HTTP request
 func Handle(w http.ResponseWriter, object Entity, sql string, params ...interface{}) {
 
@@ -53,14 +69,19 @@ func Handle(w http.ResponseWriter, object Entity, sql string, params ...interfac
 // HandleBadRequestErr handles a bad request from the client
 func HandleBadRequestErr(w http.ResponseWriter, err error) {
 
-	logger.Error("Bad Request", err)
+	handleErr(w, "Bad Request", http.StatusBadRequest, err)
+}
+
+func handleErr(w http.ResponseWriter, message string, code int, err error) {
+
+	logger.Error(message, err)
 
 	body := ErrorBody{
-		Code:        http.StatusBadRequest,
-		Description: "Bad Request",
+		Code:        code,
+		Description: message,
 	}
 
-	WriteResponse(w, NewResponse(http.StatusBadRequest, body))
+	WriteResponse(w, NewResponse(code, body))
 }
 
 // NewResponse creates an initialized Response

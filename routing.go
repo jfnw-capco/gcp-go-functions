@@ -48,6 +48,9 @@ func Serve(w http.ResponseWriter, r *http.Request) {
 
 	router := mux.NewRouter()
 
+	// Ping added by default
+	router.HandleFunc("/ping", Ping).Methods("GET")
+
 	for _, route := range routes {
 		router.HandleFunc(route.path, route.handler).Methods(route.verb)
 		logger.Info(LogEntry{Action: "Initialized Route", Map: route.LogData()})

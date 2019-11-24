@@ -1,5 +1,6 @@
-# Capco Google Cloud Platform Functions
- 
+# Capco GCP Cloud Functions Library
+[![Go Report Card](https://goreportcard.com/badge/github.com/OktaSecurityLabs/sgt)](https://goreportcard.com/report/github.com/capcodigital/gcpfunctions)
+
 ![Capco](https://github.com/capcodigital/.github/blob/master/assets/capco_logo.jpg)
 
 ## Setup
@@ -16,6 +17,14 @@ go get -u github.com/capcodigital/gcpfunctions
 ```
 import github.com/capcodigital/gcpfunctions
 ```
+
+## Running locally
+
+With the GCP Functions Framework, we can now run Google Cloud Functions locally for test purposes.
+
+To see an example of use `/example/run.sh` and a simple example will be served at `http://localhost:6000`.  The port can be changed in `/example/.env.example` if required.
+
+More details regards the Go Functions Framework can be found [here](https://github.com/capcodigital/.github/blob/master/CODE_OF_CONDUCT.md).
 
 ## Contributing
  

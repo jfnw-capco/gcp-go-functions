@@ -21,8 +21,6 @@ const (
 )
 
 const (
-	local  = "local"
-	cloud  = "cloud"
 	driver = "postgres"
 )
 
@@ -68,11 +66,12 @@ func openDB() (*sql.DB, string, error) {
 
 	var connectionString string
 
-	if config.Mode == local {
+	password := config.getPassword()
+
+	if len(password) > 0 {
 		connectionString = fmt.Sprintf(config.ConnectionString, config.getPassword())
 	} else {
 		connectionString = config.ConnectionString
-
 	}
 
 	logger.Info(LogEntry{Action: "Attempting DB Open", Message: connectionString})
@@ -80,8 +79,7 @@ func openDB() (*sql.DB, string, error) {
 	return db, connectionString, err
 }
 
-// RunSQL is used to add an entity to the database
-func RunSQL(sql string, args ...interface{}) (*sql.Row, error) {
+func pingDB() (*sql.DB, error) {
 
 	db, connectionString, err := openDB()
 	if err != nil {
@@ -94,7 +92,18 @@ func RunSQL(sql string, args ...interface{}) (*sql.Row, error) {
 		logger.Error("DB Ping Failed", err)
 		return nil, err
 	}
+
 	logger.Info(LogEntry{Action: "DB Ping Succeeded", Message: connectionString})
+	return db, nil
+}
+
+// RunSQL is used to add an entity to the database
+func RunSQL(sql string, args ...interface{}) (*sql.Row, error) {
+
+	db, err := pingDB()
+	if err != nil{
+		return nil, err
+	} 
 
 	row := db.QueryRow(sql, args...)
 	logger.Info(LogEntry{Action: "SQL Run", Message: sql})
