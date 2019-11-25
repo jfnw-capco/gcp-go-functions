@@ -68,7 +68,7 @@ func NewResponse(code int, data interface{}) Response {
 
 	headers := map[string]string{
 		"Access-Control-Allow-Origin":  "*",
-		"Access-Control-Allow-Methods": "POST, GET, PATCH",
+		"Access-Control-Allow-Methods": "POST, GET, PATCH, PUT",
 		"Access-Control-Allow-Headers": "Content-Type",
 		"Access-Control-Max-Age":       "3600",
 		"Content-Type":                 "application/json"}
