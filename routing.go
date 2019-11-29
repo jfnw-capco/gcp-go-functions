@@ -53,6 +53,10 @@ func Serve(w http.ResponseWriter, r *http.Request) {
 		logger.Info(LogEntry{Action: "Initialized Route", Map: route.LogData()})
 	}
 
+	// Always handle OPTIONS, on any path
+	// This will need improving if we want to handle differently per end-point
+	router.Methods(http.MethodOptions).HandlerFunc(OptionsHandler)
+
 	router.ServeHTTP(w, r)
 }
 
