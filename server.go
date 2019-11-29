@@ -2,9 +2,12 @@ package nozzle
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
+	"strings"
 
+	"github.com/go-http-utils/headers"
 	"github.com/lib/pq"
 )
 
@@ -30,6 +33,31 @@ type Error struct {
 type ErrorBody struct {
 	Code        int    `json:"code"`
 	Description string `json:"description"`
+}
+
+func supportedMethods() map[string]struct{}{
+	return map[string]struct{}{
+		http.MethodGet: struct{}{},
+		http.MethodPatch: struct{}{},
+		http.MethodPost: struct{}{},
+		http.MethodPut: struct{}{},
+	}
+}
+
+func supportedMethodsStr() string{
+	var builder strings.Builder
+	for method, _ := range supportedMethods(){
+		builder.WriteString(method + ", ")
+	}
+	return strings.TrimRight(builder.String(), ", ")
+}
+
+func isSupported(method string) bool{
+	supported := supportedMethods()
+	if _, ok := supported[method]; ok {
+		return true
+	}
+	return false
 }
 
 // Handle processes a HTTP request
@@ -67,17 +95,79 @@ func HandleBadRequestErr(w http.ResponseWriter, err error) {
 func NewResponse(code int, data interface{}) Response {
 
 	headers := map[string]string{
-		"Access-Control-Allow-Origin":  "*",
-		"Access-Control-Allow-Methods": "POST, GET, PATCH, PUT",
-		"Access-Control-Allow-Headers": "Content-Type",
-		"Access-Control-Max-Age":       "3600",
-		"Content-Type":                 "application/json"}
+		headers.AccessControlAllowOrigin:  "*",
+		headers.AccessControlAllowMethods: supportedMethodsStr(),
+		headers.AccessControlAllowHeaders: "Content-Type",
+		headers.AccessControlMaxAge:       "3600",
+		headers.ContentType:               "application/json"}
 
 	return Response{
 		Headers: headers,
 		Code:    code,
 		Data:    data,
 	}
+}
+
+// OptionsHandler provides default handling of OPTIONS requests
+func OptionsHandler(w http.ResponseWriter, r *http.Request) {
+
+	requestHeaders := r.Header;
+	if requestHeaders.Get(headers.Origin) == "" {
+		HandleBadRequestErr(w, errors.New("missing origin header"))
+		return
+	}
+
+	if requestHeaders.Get(headers.AccessControlRequestMethod) == "" {
+		handleOptionsRequest(w, r)
+	} else {
+		handlePreFlightRequest(w, r)
+	}
+}
+
+func handlePreFlightRequest(w http.ResponseWriter, r *http.Request) {
+
+	logger.Info(LogEntry{Action: "Processing pre-flight request."})
+
+	requestHeaders := r.Header
+
+	if requestHeaders.Get(headers.AccessControlRequestMethod) == "" {
+		errStr := "missing " + headers.AccessControlRequestMethod
+		HandleBadRequestErr(w, errors.New(errStr));
+		return
+	}
+
+	if !(isSupported(requestHeaders.Get(headers.AccessControlRequestMethod))){
+		errStr := headers.AccessControlRequestMethod + " is not supported"
+		HandleBadRequestErr(w, errors.New(errStr));
+	}
+
+	if requestHeaders.Get(headers.AccessControlRequestHeaders) == "" {
+		errStr := "missing " + headers.AccessControlRequestHeaders
+		HandleBadRequestErr(w, errors.New(errStr))
+		return
+	}
+
+	headers := map[string]string{
+		headers.AccessControlAllowMethods: supportedMethodsStr(),
+		headers.AccessControlAllowHeaders: "Content-Type",
+		headers.AccessControlMaxAge:       "3600"}
+
+	response := Response{
+		Headers: headers,
+		Code:    http.StatusOK,
+		Data:    nil,
+	}
+
+	WriteResponse(w, response)
+}
+
+func handleOptionsRequest(w http.ResponseWriter, r *http.Request) {
+
+	logger.Info(LogEntry{Action: "OPTIONS request not currently supported."})
+
+	response := NewResponse(http.StatusMethodNotAllowed, nil)
+
+	WriteResponse(w, response)
 }
 
 // Serialize object to byte array
