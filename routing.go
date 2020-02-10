@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -49,15 +50,28 @@ func Serve(w http.ResponseWriter, r *http.Request) {
 	router := mux.NewRouter()
 
 	for _, route := range routes {
-		router.HandleFunc(route.path, route.handler).Methods(route.verb)
+		router.HandleFunc(route.path, route.handler).Methods(route.verb, "OPTIONS")
 		logger.Info(LogEntry{Action: "Initialized Route", Map: route.LogData()})
 	}
 
-	// Always handle OPTIONS, on any path
-	// This will need improving if we want to handle differently per end-point
-	router.Methods(http.MethodOptions).HandlerFunc(OptionsHandler)
+	addCorsSupport(router)
 
 	router.ServeHTTP(w, r)
+}
+
+func addCorsSupport(router *mux.Router) *mux.Router {
+
+	cors := handlers.CORS(
+		handlers.AllowedHeaders([]string{"content-type"}),
+		handlers.AllowedOrigins([]string{"*"}),
+		handlers.AllowedMethods([]string{"GET", "HEAD", "POST", "PUT", "OPTIONS"}),
+		handlers.AllowCredentials(),
+		handlers.AllowedHeaders([]string{"X-Requested-With"}),
+	)
+
+	router.Use(cors)
+
+	return router
 }
 
 // GetRequest from the HTTP request
