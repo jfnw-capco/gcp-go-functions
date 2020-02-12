@@ -16,22 +16,22 @@ func TestOptionsHandling(t *testing.T) {
 	reader := strings.NewReader("")
 
 	requiredHeaders := map[string]string{
-		headers.Origin:					     "localhost",
+		headers.Origin:                      "localhost",
 		headers.AccessControlRequestMethod:  http.MethodPost,
 		headers.AccessControlRequestHeaders: headers.ContentType}
 
 	noHeaders := make(map[string]string)
 
 	cases := map[string]struct {
-		headers map[string]string
+		headers        map[string]string
 		expectedStatus int
 	}{
-		"OK:":{requiredHeaders, http.StatusOK},
-		"Missing origin":{ noHeaders, http.StatusBadRequest},
+		"OK:":            {requiredHeaders, http.StatusOK},
+		"Missing origin": {noHeaders, http.StatusBadRequest},
 	}
 
 	for name, testCase := range cases {
-		t.Run(name, func(t *testing.T){
+		t.Run(name, func(t *testing.T) {
 			request, err := http.NewRequest(http.MethodOptions, `/`, reader)
 			if err != nil {
 				t.Fatal(err)

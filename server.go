@@ -36,16 +36,16 @@ type ErrorBody struct {
 
 func supportedMethods() map[string]struct{} {
 	return map[string]struct{}{
-		http.MethodGet:   struct{}{},
-		http.MethodPatch: struct{}{},
-		http.MethodPost:  struct{}{},
-		http.MethodPut:   struct{}{},
+		http.MethodGet:   {},
+		http.MethodPatch: {},
+		http.MethodPost:  {},
+		http.MethodPut:   {},
 	}
 }
 
 func supportedMethodsStr() string {
 	var builder strings.Builder
-	for method, _ := range supportedMethods() {
+	for method := range supportedMethods() {
 		builder.WriteString(method + ", ")
 	}
 	return strings.TrimRight(builder.String(), ", ")
