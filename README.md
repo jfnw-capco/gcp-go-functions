@@ -1,25 +1,30 @@
-# Capco Google Cloud Platform Functions
- 
-![Capco](https://github.com/capcodigital/.github/blob/master/assets/capco_logo.jpg)
+<p align="center">
+  <img alt="capco.com" src="https://raw.githubusercontent.com/capcodigital/.github/master/assets/capco_logo.jpg" height="75" />
+</p>
 
-## Setup
+# GCP Go Functions
 
-### Installation
+## Purpose
 
-* Install with go get
+The purpose of this is to provide a a reusable package for simple CRUD functions written in `golang` to be deployed in GCP.
 
+## Installation
+
+Install with go get...
+
+```shell
+go get -u github.com/capcodigital/gcp-go-functions
 ```
-go get -u github.com/capcodigital/gcpfunctions
-```
-* Include in golang module
 
-```
-import github.com/capcodigital/gcpfunctions
+Include in golang module...
+
+```shell
+import github.com/capcodigital/gcp-go-functions
 ```
 
 ## Contributing
- 
+
 If you would like to contribute to any Capco Digital OSS projects please read:
- 
+
 * [Code of Conduct](https://github.com/capcodigital/.github/blob/master/CODE_OF_CONDUCT.md)
 * [Contributing Guidelines](https://github.com/capcodigital/.github/blob/master/CONTRIBUTING.md)
